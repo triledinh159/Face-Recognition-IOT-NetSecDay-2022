@@ -10,7 +10,5 @@ NetSec Day is festival day of Faculty of Network Computers - University of Infor
  - In this project, we have built a Face Recognition with IOT system which is not only can run in PC but also run in embedded computer (Raspberry pi 3 in particular) at high performance but still ensure the accuracy.
 
  - To do that, we had to optimize the system. So that, instead of full processing at device, we will process the image on cloud services (AWS in this project).
-
- - We created 
-
-## Requirements
+ 
+## Procedures (coming soon)
