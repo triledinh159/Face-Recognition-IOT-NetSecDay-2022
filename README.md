@@ -4,7 +4,7 @@ FRIOT v1.0
 
 This project has been shown in NetSecDay 2022.
 
-NetSec Day is the festival day of the Faculty of Network Computers - University of Information Technology, it's also called the "Network and Cyber Security" festival.
+NetSec Day is the festival day of the Faculty of Computer Networks and Communications - University of Information Technology.
 
 ## Introduction
  - In this project, we have built a Face Recognition with an IOT system that not only can run on a PC but also run on an embedded computer (Raspberry Pi 3 in particular) at high performance while still ensuring accuracy.
