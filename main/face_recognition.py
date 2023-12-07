@@ -1,6 +1,4 @@
-#from picamera import PiCamera
 
-#from espeak import espeak
 
 from PIL import ImageFont, ImageDraw, Image
 
@@ -16,44 +14,10 @@ from threading import Thread
 
 import numpy as np  
 
-
 import random
 import time
 
-from paho.mqtt import client as mqtt_client
-
 import base64
-broker = 'broker.emqx.io'
-port = 1883
-topic = "python/mqtt"
-# generate client ID with pub prefix randomly
-client_id = f'python-mqtt-{random.randint(0, 1000)}'
-# username = 'emqx'
-# password = 'public'
-
-def connect_mqtt():
-    def on_connect(client, userdata, flags, rc):
-        if rc == 0:
-            print("Connected to MQTT Broker!")
-        else:
-            print("Failed to connect, return code %d\n", rc)
-
-    client = mqtt_client.Client(client_id)
-    client.username_pw_set('emqx', 'public')
-    client.on_connect = on_connect
-    client.connect(broker, port)
-    return client
-
-
-def publish(client,name):
-    msg = f"{name}"
-    result = client.publish(topic, msg)
-    # result: [0, 1]
-    status = result[0]
-    if status == 0:
-        print(f"Sent")
-    else:
-        print(f"Failed to send message to topic {topic}")
 
 
 
@@ -190,14 +154,20 @@ def collect_data():
 
                 if (face_matched):
                     name = '%s' % (response['FaceMatches'][0]['Face']['ExternalImageId'])
+                    
+                    
                     name += "=" * ((4 - len(name) % 4) % 4)
                     base64_bytes = name.encode('utf-8')
                     message_bytes = base64.b64decode(base64_bytes)
                     message = message_bytes.decode('utf-8')
                     print ('Identity matched '+ message +' with %r similarity and %r confidence...' % (round(response['FaceMatches'][0]['Similarity'], 1), round(response['FaceMatches'][0]['Face']['Confidence'], 2)))
-
-                    #espeak.synth('Hello %s! What is my purpose?' % (response['FaceMatches'][0]['Face']['ExternalImageId']))
-
+                    fontpath = "./clear-sans/ClearSans-Regular.ttf"
+                    font = ImageFont.truetype(fontpath, 32)
+                    img_pil = Image.fromarray(frame)
+                    draw = ImageDraw.Draw(img_pil)
+                    draw.text((x, y-40),  message, font = font, fill = (0,255,0,0))
+                    frame = np.array(img_pil)
+                    cv2.imshow('FACE', frame)
                     name = '%s' % (response['FaceMatches'][0]['Face']['ExternalImageId'])
                     base64_bytes = name.encode('utf-8')
                     message_bytes = base64.b64decode(base64_bytes)
@@ -205,30 +175,18 @@ def collect_data():
                     if (message == pre_name): 
                         print('')
                     else:
-                        if (setdelname != ''):
-                            cv2.destroyWindow('FACE')
                         print ('Hello ' + message)
-                        fontpath = "./clear-sans/ClearSans-Regular.ttf"
-                        font = ImageFont.truetype(fontpath, 32)
-                        img_pil = Image.fromarray(frame)
-                        draw = ImageDraw.Draw(img_pil)
-                        draw.text((x, y-40),  message, font = font, fill = (0,255,0,0))
-                        frame = np.array(img_pil)
-
-                        #ft.putText(img=frame, text = message ,org = (x, y-10), fontHeight=60,color = (36,255,12),thickness= 3, line_type=cv2.LINE_AA, bottomLeftOrigin=True)
                         cv2.imshow('FACE', frame)
                         pre_name = message
-                        #publish(client1,name)
-                    
+                        if cv2.waitKey(20) & 0xFF == ord('q'):
+
+                            break
 
 
                 else:
 
                     cv2.putText(frame, 'UNKNOWN' , (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0,0,255), 2)
                     cv2.imshow('FACE', frame)
-
-                    #espeak.synth('Unknown human detected. Who are you stranger?')
-                
                 if cv2.waitKey(20) & 0xFF == ord('q'):
                     break
                 
@@ -248,13 +206,9 @@ def show_video():
 
     args = parser.parse_args()
 
-    #intialize opencv2 face detection
-
     face_cascade_name = args.face_cascade
 
     face_cascade = cv2.CascadeClassifier()
-
-    #Load the cascades
 
     if not face_cascade.load(cv2.samples.findFile(face_cascade_name)):
 
@@ -278,20 +232,8 @@ dirname = os.path.dirname(__file__)
 directory = os.path.join(dirname, 'faces')
 
 def run():
-    # client = connect_mqtt()
-    # client.loop_start()
 
-
-    t1 = Thread(target=collect_data)
-    t2 = Thread(target=show_video)
-
-
-    t1.start()
-    t2.start()
-    t1.join()
-    t2.join()
-
-    # main(1)
+    collect_data()
 
 if __name__ == '__main__':
     run()

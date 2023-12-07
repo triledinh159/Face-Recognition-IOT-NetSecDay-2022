@@ -31,8 +31,7 @@ timestr = time.strftime("%Y%m%d-%H%M%S")
 image = '{0}/image_{1}.jpg'.format(directory, timestr)
 time.sleep(0.5)
 
-cv2.imwrite(image,img) #if using camera module
-#camera.capture(image) #if using pi camera
+cv2.imwrite(image,img) 
 
 print ('Your image was saved to %s' % image)
 #initialize reckognition sdk
